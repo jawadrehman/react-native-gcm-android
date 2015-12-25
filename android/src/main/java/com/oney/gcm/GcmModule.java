@@ -41,6 +41,10 @@ import android.app.NotificationManager;
 import android.media.RingtoneManager;
 import android.net.Uri;
 
+//BEGIN VOX EDIT//
+import java.util.Random;
+//END VOX EDIT//
+
 public class GcmModule extends ReactContextBaseJavaModule implements LifecycleEventListener {
     private final static String TAG = GcmModule.class.getCanonicalName();
     private ReactContext mReactContext;
@@ -178,6 +182,20 @@ public class GcmModule extends ReactContextBaseJavaModule implements LifecycleEv
     }
 
     @ReactMethod
+  /**
+  Returns the notification tapped when the app has been opened via a notification
+
+  --BEGIN VOXMARKETS EDIT
+  */
+  public void popInitialNotification() {
+    Intent intent =mActivity.getIntent();
+    WritableMap params = Arguments.createMap();
+    params.putString("popInitialNotification", intent.getStringExtra("payload"));
+    sendEvent("popInitialNotification", params);
+  }
+  //-- END VOX MARKETS EDIT//
+
+    @ReactMethod
     public void createNotification(ReadableMap infos) {
         Resources resources = mReactContext.getResources();
 
@@ -195,9 +213,17 @@ public class GcmModule extends ReactContextBaseJavaModule implements LifecycleEv
         int resourceId = resources.getIdentifier(infos.getString("largeIcon"), "mipmap", packageName);
 
         Intent intent = new Intent(mReactContext, intentClass);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-        PendingIntent pendingIntent = PendingIntent.getActivity(mReactContext, 0, intent,
-                PendingIntent.FLAG_ONE_SHOT);
+        //BEGIN VOX EDIT//
+        //add payload to intent.
+        if(infos.hasKey("payload")){
+          intent.putExtra("payload", infos.getString("payload"));
+        }
+        //Add random interger to pending intent to allow multiple notifications being added when the app is closed.
+        Random rand = new Random();
+        int randomInteger = rand.nextInt(10);
+
+        PendingIntent pendingIntent = PendingIntent.getActivity(mReactContext, randomInteger, intent, PendingIntent.FLAG_ONE_SHOT);
+        //END VOX EDIT//
 
         Bitmap largeIcon = BitmapFactory.decodeResource(resources, resourceId);
 
@@ -223,8 +249,10 @@ public class GcmModule extends ReactContextBaseJavaModule implements LifecycleEv
         notif.defaults |= Notification.DEFAULT_VIBRATE;
         notif.defaults |= Notification.DEFAULT_SOUND;
         notif.defaults |= Notification.DEFAULT_LIGHTS;
-
-        notificationManager.notify(0, notif);
+        //BEGIN VOX EDIT//
+        //Add random interger to notificationmanager to allow multiple notifications being added when the app is closed.
+        notificationManager.notify(randomInteger, notif);
+        //END VOX EDIT//
     }
 
     @Override

@@ -10,7 +10,10 @@ var _notifHandlers = new Map();
 
 var DEVICE_NOTIF_EVENT = 'remoteNotificationReceived';
 var NOTIF_REGISTER_EVENT = 'remoteNotificationsRegistered';
-
+//BEGIN VOX MARKETS EDIT/
+//EVENT FOR POPINITIALEVENT
+var POP_INITIAL_EVENT = 'popInitialNotification';
+//END VOX MARKETS EDIT/
 class GcmAndroid {
   static addEventListener(type: string, handler: Function) {
     var listener;
@@ -31,6 +34,14 @@ class GcmAndroid {
         }
       );
     }
+    //BEGIN VOX MARKETS EDIT//
+    //ADD LISTENER TO RETURN POPINITIALEVENT
+     else if(type == POP_INITIAL_EVENT){
+      listener = DeviceEventEmitter.addListener(POP_INITIAL_EVENT, (popInitialNotification)=>{
+        handler(popInitialNotification);
+      });
+    }
+    //END VOX MARKETS EDIT//
     _notifHandlers.set(handler, listener);
   }
 
@@ -58,6 +69,14 @@ class GcmAndroid {
     listener.remove();
     _notifHandlers.delete(handler);
   }
+
+  //BEGIN VOX MARKETS EDIT//
+  //CALL JAVA FUNCTION DEFINED TO GET INITIAL NOTIFICATION
+  static popInitialNotification(){
+    GcmModule.popInitialNotification();
+  }
+  //END VOX MARKETS EDIT//
+
 
   constructor(data) {
     this.data = data;

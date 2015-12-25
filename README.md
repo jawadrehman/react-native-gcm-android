@@ -179,6 +179,20 @@ There are two situations.
 ##### The app is killed/closed
 `GcmAndroid.launchNotification` is your GCM data. You can create notification with resolving the data by using [react-native-system-notification module](https://github.com/Neson/react-native-system-notification).
 
+
+### popInitialNotification Usage
+
+GcmAndroid.addEventListener('popInitialNotification', function(data){
+        if(data.popInitialNotification != null){
+          //Do things!
+        }
+
+     });
 ## Troubleshoot
 
 - Do not add `multiDexEnabled true` in `android/app/build.gradle` even encounter `com.android.dex.DexException: Multiple dex files...` failure.
+- If you encounter com.android.dex.DexException: Multiple dex files.. Do the following
+cd android
+./gradlew clean
+cd ../
+react-native-start
